@@ -1,0 +1,58 @@
+{
+  "role": "Counsellor and Psychotherapist",
+  "credentials": "MIACP",
+  "how_i_work_title": "There's no script to it",
+  "how_i_work": [
+    "The first session is mostly you talking and me listening. I'll ask what brought you here and what you'd like to be different. You don't need to have it worked out beforehand — most people don't, and saying it out loud for the first time is usually the hardest part.",
+    "After that we go at whatever pace suits you. I won't hand you homework or a programme to work through. Some weeks we'll talk about what happened that week; other weeks we'll go further back. [Two or three lines here about how you actually work — person-centred, CBT, integrative, whatever it is. This is the part people read twice before they ring.]",
+    "If after a few sessions you don't think I'm the right fit for you, say so and I'll help you find someone who is. That happens, and it isn't a failure on anyone's part."
+  ],
+  "helps_with": [
+    "Anxiety and panic",
+    "Bereavement and loss",
+    "Relationship difficulties",
+    "Work stress and burnout",
+    "Confidence and self-esteem",
+    "Trauma and its aftermath"
+  ],
+  "helps_with_note": "This isn't a checklist. Plenty of people arrive without a word for what's wrong, and that is a perfectly good place to start.",
+  "session_length": "50 minutes, at the same time each week.",
+  "fee": "€[00] per session. [If you hold a few lower-cost places for students or people out of work, say so here — it is one of the most-read lines on any therapist's site.]",
+  "online_sessions": "[Yes or no — and if yes, say whether that's video or phone, and whether the fee is the same.]",
+  "availability": "[Are you taking new clients at the moment? Say it plainly, and give a rough idea of the wait if there is one.]",
+  "cancellation": "[Most practices ask for 24 or 48 hours' notice. Putting your policy here means it never becomes an awkward conversation later.]",
+  "contact_paragraphs": [
+    "Ringing is the quickest way. If phoning a stranger feels like more than you can do today, email is completely fine — a lot of people start that way.",
+    "I'll normally come back to you within [one working day]. If I don't pick up I'm most likely in a session, so leave a message and I'll ring you back.",
+    "There's nothing you need to prepare, and getting in touch doesn't commit you to anything."
+  ],
+  "accreditation": "Member of the Irish Association for Counselling and Psychotherapy (MIACP). I work in accordance with the IACP Code of Ethics and Practice and attend regular supervision. [Add your accreditation number.]",
+  "confidentiality": "What you say in the room stays between us. The exceptions are the ones the law requires — a risk of serious harm to you or someone else — and wherever possible I would talk to you about it first.",
+  "privacy_note": "This site sets no cookies and collects no analytics.",
+  "photo": "",
+  "photo_caption": "",
+  "eircode": "V95 XY12",
+  "canonical": "https://www.aoifebrennan.ie/",
+  "draft": false,
+  "robots": "index, follow",
+  "name": "Aoife Brennan",
+  "town": "Ennis",
+  "county": "Clare",
+  "email": "hello@aoifebrennan.ie",
+  "phone": "0871234567",
+  "phone_tel": "+353871234567",
+  "phone_display": "087 123 4567",
+  "year": 2026,
+  "address_lines": [
+    "The Mill House",
+    "12 Abbey Street"
+  ],
+  "where": "Ennis, County Clare. [Add the street address and Eircode, and say whether there's parking or how far it is from the bus.]",
+  "lead": "I'm a counsellor and psychotherapist working in Ennis. I see adults one to one, usually weekly, for as long as it stays useful.",
+  "intro_paragraphs": [
+    "Most people get in touch after putting it off for a good while. That's normal, and however long it's taken doesn't matter now.",
+    "[A short paragraph in your own words about who you are and how you came to this work. Two or three sentences is plenty — people are deciding whether they'd feel alright sitting in a room with you, not reading a CV.]"
+  ],
+  "has_helps_with": true,
+  "meta_description": "Aoife Brennan, MIACP — counsellor and psychotherapist in Ennis, County Clare. Weekly one-to-one sessions for adults."
+}

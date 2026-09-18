@@ -9,8 +9,9 @@ from . import classify as C
 from .pipeline import Lead
 
 COLUMNS = [
-    "score", "verdict", "pitch", "name", "county", "email", "phone",
-    "website", "social", "directories", "other_links", "profile_url", "why",
+    "score", "verdict", "pitch", "name", "town", "county", "accreditation",
+    "email", "phone", "specialisms", "website", "social", "directories",
+    "other_links", "profile_url", "why", "blurb",
 ]
 
 
@@ -29,7 +30,11 @@ def row_for(lead: Lead) -> dict[str, str]:
         "verdict": v.verdict,
         "pitch": C.VERDICT_PITCH.get(v.verdict, ""),
         "name": p.name,
+        "town": p.town,
         "county": p.county,
+        "accreditation": p.accreditation,
+        "specialisms": "; ".join(p.specialisms),
+        "blurb": p.blurb,
         "email": p.email,
         "phone": p.phone,
         "website": v.website,

@@ -1,0 +1,260 @@
+/* ---------------------------------------------------------------------------
+   A small counselling practice site.
+
+   Deliberate choices, because the brief was "must not look generated":
+   - Warm paper background, not white; ink, not black. Print, not dashboard.
+   - One serif throughout. Mixed serif/sans reads corporate.
+   - No cards, no icon grids, no drop shadows, no gradients, no JavaScript.
+   - Asymmetric: the portrait sits off the text column rather than centred.
+   - No dark mode. Small practices don't ship a theme toggle; the warm paper
+     IS the brand, and inverting it loses the whole feeling.
+   - No testimonials section, ever. IACP's code of ethics restricts soliciting
+     client endorsements, so a "what clients say" block marks a site as
+     built by someone who has never worked with a therapist.
+--------------------------------------------------------------------------- */
+
+:root {
+  --paper:      #fbf9f6;
+  --paper-warm: #f4efe7;
+  --ink:        #26231f;
+  --ink-soft:   #55504a;
+  --ink-faint:  #8a837a;
+  --rule:       #e1d9cd;
+  --accent:     #55684f;
+  --accent-dp:  #3b4c37;
+  --measure:    34rem;
+  --gutter:     clamp(1.25rem, 5vw, 4rem);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "Newsreader", Georgia, "Iowan Old Style", "Times New Roman", serif;
+  font-size: 1.125rem;
+  line-height: 1.65;
+  font-synthesis-weight: none;
+}
+
+p { margin: 0 0 1.1em; max-width: var(--measure); }
+p:last-child { margin-bottom: 0; }
+
+a { color: var(--accent-dp); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--ink); }
+a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+h1, h2, h3 { font-weight: 500; line-height: 1.2; margin: 0; letter-spacing: -0.01em; }
+
+.wrap { max-width: 61rem; margin: 0 auto; padding-inline: var(--gutter); }
+
+/* --- draft banner: only on preview builds ------------------------------- */
+.draft {
+  background: var(--accent-dp);
+  color: #f3f0ea;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  padding: 0.7rem 0;
+}
+.draft p { max-width: none; margin: 0; }
+.draft strong { font-weight: 600; }
+
+/* --- masthead ----------------------------------------------------------- */
+.masthead { padding: clamp(2rem, 6vw, 3.5rem) 0 1.75rem; }
+.masthead__inner {
+  display: flex; flex-wrap: wrap; gap: 1rem 2rem;
+  align-items: baseline; justify-content: space-between;
+}
+.masthead__name { font-size: clamp(1.6rem, 4vw, 2.1rem); }
+.masthead__role {
+  margin: 0.35rem 0 0;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  max-width: none;
+}
+.masthead__contact {
+  font-size: 0.975rem;
+  color: var(--ink-soft);
+  text-align: right;
+  max-width: none;
+  margin: 0;
+}
+.masthead__contact a { display: inline-block; }
+
+nav.sections {
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  padding: 0.7rem 0;
+  font-size: 0.95rem;
+}
+nav.sections ul {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; gap: 0.35rem 1.75rem;
+}
+nav.sections a { color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid transparent; }
+nav.sections a:hover { color: var(--ink); border-bottom-color: var(--accent); }
+
+/* --- opening ------------------------------------------------------------ */
+.opening { padding: clamp(2.5rem, 7vw, 4.5rem) 0 clamp(1.5rem, 4vw, 2.5rem); }
+.opening__grid { display: grid; gap: clamp(1.75rem, 5vw, 3.5rem); align-items: start; }
+@media (min-width: 52rem) {
+  .opening__grid { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); }
+  /* the portrait drops below the first line of text rather than aligning to
+     it: the small asymmetry is what stops this reading as a template */
+  .portrait { margin-top: 2.25rem; }
+}
+.opening__lead {
+  font-size: clamp(1.25rem, 2.6vw, 1.5rem);
+  line-height: 1.45;
+  color: var(--ink);
+  margin-bottom: 1.4rem;
+}
+.opening__body { color: var(--ink-soft); }
+
+.portrait { margin: 0; }
+.portrait img {
+  display: block; width: 100%; height: auto;
+  border: 1px solid var(--rule);
+  background: var(--paper-warm);
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+}
+.portrait figcaption {
+  margin-top: 0.6rem;
+  font-size: 0.875rem;
+  color: var(--ink-faint);
+}
+.portrait--empty {
+  display: grid; place-items: center;
+  aspect-ratio: 4 / 5;
+  border: 1px dashed var(--rule);
+  background: var(--paper-warm);
+  color: var(--ink-faint);
+  font-size: 0.9rem;
+  text-align: center;
+  padding: 1.5rem;
+}
+
+/* --- sections ----------------------------------------------------------- */
+section { padding: clamp(2.25rem, 5vw, 3.25rem) 0; border-top: 1px solid var(--rule); }
+
+/* On wide screens the section label moves out into the left margin, so the
+   space beside the text column is used on purpose instead of sitting empty. */
+@media (min-width: 60rem) {
+  section > .wrap {
+    display: grid;
+    grid-template-columns: 8.5rem minmax(0, 1fr);
+    column-gap: 2.5rem;
+  }
+  section > .wrap > * { grid-column: 2; }
+  section > .wrap > .section__label {
+    grid-column: 1;
+    grid-row: 1;
+    text-align: right;
+    padding-top: 0.55rem;
+    margin: 0;
+  }
+}
+.section__label {
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 0.6rem;
+  max-width: none;
+}
+.section__title { font-size: clamp(1.4rem, 3vw, 1.75rem); margin-bottom: 1.25rem; }
+
+/* A plain two-column list with hanging dashes. Not icon cards. */
+.helps { columns: 2; column-gap: 2.5rem; list-style: none; margin: 0; padding: 0; max-width: 46rem; }
+@media (max-width: 40rem) { .helps { columns: 1; } }
+.helps li {
+  break-inside: avoid;
+  padding-left: 1.1rem;
+  text-indent: -1.1rem;
+  margin-bottom: 0.4rem;
+  color: var(--ink-soft);
+}
+.helps li::before { content: "\2014\00a0"; color: var(--ink-faint); }
+
+/* --- practical details -------------------------------------------------- */
+.details { margin: 0; max-width: 46rem; }
+.details__row {
+  display: grid;
+  gap: 0.15rem 2rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.details__row:first-child { border-top: 1px solid var(--rule); }
+@media (min-width: 40rem) { .details__row { grid-template-columns: 10rem 1fr; } }
+.details dt {
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding-top: 0.25rem;
+}
+.details dd { margin: 0; color: var(--ink); }
+.details dd p { max-width: none; }
+
+/* --- contact ------------------------------------------------------------ */
+.contact__lines { list-style: none; margin: 0 0 1.25rem; padding: 0; font-size: 1.15rem; }
+.contact__lines li { margin-bottom: 0.4rem; }
+.contact__lines .label { color: var(--ink-faint); font-size: 0.95rem; margin-right: 0.5rem; }
+
+/* --- crisis note -------------------------------------------------------- */
+/* Deliberately calm: bordered and quiet, not a red alert box. Every Irish
+   practice site carries this, and its absence is conspicuous. */
+.crisis {
+  border: 1px solid var(--rule);
+  background: var(--paper-warm);
+  padding: clamp(1.1rem, 3vw, 1.6rem);
+  max-width: 46rem;
+  font-size: 1rem;
+}
+.crisis h2 { font-size: 1.1rem; margin-bottom: 0.5rem; }
+.crisis p { color: var(--ink-soft); }
+.crisis ul { list-style: none; margin: 0.75rem 0 0; padding: 0; }
+.crisis li { margin-bottom: 0.3rem; color: var(--ink-soft); }
+.crisis .svc { color: var(--ink); }
+
+/* --- footer ------------------------------------------------------------- */
+footer {
+  border-top: 1px solid var(--rule);
+  margin-top: clamp(2rem, 5vw, 3rem);
+  padding: clamp(2rem, 5vw, 2.75rem) 0 clamp(2.5rem, 6vw, 4rem);
+  font-size: 0.95rem;
+  color: var(--ink-soft);
+}
+.footer__grid { display: grid; gap: 1.5rem 3rem; }
+@media (min-width: 46rem) { .footer__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+footer h2 {
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Helvetica, Arial, sans-serif;
+  font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-faint); margin-bottom: 0.5rem;
+}
+footer address { font-style: normal; }
+.colophon {
+  margin-top: 2rem; padding-top: 1.25rem;
+  border-top: 1px solid var(--rule);
+  font-size: 0.85rem; color: var(--ink-faint);
+}
+.colophon p { max-width: none; }
+
+@media print {
+  .draft, nav.sections { display: none; }
+  body { background: #fff; font-size: 11pt; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

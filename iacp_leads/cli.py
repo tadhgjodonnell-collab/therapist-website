@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import datetime as _dt
+import json
 import sys
 from collections import Counter
 from pathlib import Path
@@ -11,9 +13,12 @@ from bs4 import BeautifulSoup
 
 from . import discover as D
 from . import export as E
+from . import outreach as O
+from . import sitegen as S
 from .config import Config
 from .extract import extract_profile
 from .http_client import Fetcher, canonical_url
+from .classify import PROSPECT_VERDICTS as C_PROSPECTS
 from .pipeline import build_leads
 
 BANNER = "iacp-leads - find IACP-listed therapists with no website"
@@ -188,6 +193,94 @@ def cmd_inspect(args) -> int:
     return 0
 
 
+def _read_rows(path: str, prospects_only: bool = True) -> list[dict[str, str]]:
+    import csv
+    with open(path, newline="", encoding="utf-8-sig") as fh:
+        rows = list(csv.DictReader(fh))
+    if prospects_only:
+        rows = [r for r in rows if r.get("verdict") in C_PROSPECTS]
+    return rows
+
+
+# --- site --------------------------------------------------------------
+def cmd_site(args) -> int:
+    if args.content:
+        ctx = json.loads(Path(args.content).read_text(encoding="utf-8"))
+        ctx.setdefault("year", _dt.date.today().year)
+        if args.live:
+            ctx["draft"] = False
+            ctx["robots"] = "index, follow"
+        page = S.build(ctx, args.out)
+        print(f"Built {page}")
+        return 0
+
+    rows = _read_rows(args.from_csv, prospects_only=not args.include_all)
+    if args.limit:
+        rows = rows[:args.limit]
+    if not rows:
+        print("No prospects in that CSV.", file=sys.stderr)
+        return 2
+
+    out_root = Path(args.out)
+    manifest: dict[str, str] = {}
+    for row in rows:
+        slug = S.slugify(row.get("name", ""))
+        if slug in manifest.values():
+            slug = f"{slug}-{S.slugify(row.get('town', '') or row.get('county', ''))}"
+        ctx = S.content_for_row(row, draft=not args.live)
+        S.build(ctx, out_root / slug)
+        manifest[row.get("profile_url", slug)] = slug
+    (out_root / "manifest.json").write_text(
+        json.dumps(manifest, indent=2), encoding="utf-8")
+    print(f"Built {len(manifest)} draft site(s) under {out_root}/")
+    print(f"Manifest: {out_root / 'manifest.json'}")
+    print("\nEach one is marked noindex and carries a banner saying it's a "
+          "draft built from their public listing.")
+    return 0
+
+
+# --- email -------------------------------------------------------------
+def cmd_email(args) -> int:
+    sender = O.Sender.load(args.sender)
+    rows = _read_rows(args.from_csv, prospects_only=not args.include_all)
+    if args.limit:
+        rows = rows[:args.limit]
+    if not rows:
+        print("No prospects in that CSV.", file=sys.stderr)
+        return 2
+
+    demo_urls: dict[str, str] = {}
+    if args.demos:
+        manifest_path = Path(args.demos) / "manifest.json"
+        if manifest_path.exists():
+            base = (args.base_url or "").rstrip("/")
+            for profile_url, slug in json.loads(
+                    manifest_path.read_text(encoding="utf-8")).items():
+                demo_urls[profile_url] = f"{base}/{slug}/" if base else f"./{slug}/"
+        else:
+            print(f"No manifest at {manifest_path} - drafts will offer to "
+                  f"build a page instead of linking one.", file=sys.stderr)
+    if args.demos and not args.base_url:
+        print("Note: --base-url not given, so demo links are relative. Pass "
+              "the URL you'll host the demos at.", file=sys.stderr)
+
+    drafts = O.write_drafts(rows, sender, args.out, demo_urls)
+    by_channel = Counter(d.channel for d in drafts)
+    unfinished = sum(1 for d in drafts if d.unfinished)
+    print(f"Wrote {len(drafts)} draft(s) to {args.out}/")
+    print(f"  {by_channel.get('email', 0)} to email, "
+          f"{by_channel.get('phone', 0)} to ring (no address on the listing)")
+    print(f"\n{unfinished} draft(s) still have the [[ ]] line for you to write.")
+    print("Each file ends with what their listing actually says, so writing "
+          "that line takes about twenty seconds.")
+    if sender.name.startswith("["):
+        print("\nYou haven't set your details. Make a sender.json:")
+        print('  {"name": "...", "email": "...", "phone": "...", '
+              '"price": "€450", "demo_base_url": "https://..."}')
+        print("  then pass --sender sender.json")
+    return 0
+
+
 def cmd_config(args) -> int:
     print(Config().dump())
     return 0
@@ -231,6 +324,27 @@ def build_parser() -> argparse.ArgumentParser:
     inspect.add_argument("url")
     inspect.add_argument("--as-profile", action="store_true")
     inspect.set_defaults(func=cmd_inspect)
+
+    site = sub.add_parser("site", help="build draft practice sites from the lead CSV")
+    site.add_argument("--from-csv", default="out/leads.csv")
+    site.add_argument("--content", help="build one site from a content JSON instead")
+    site.add_argument("--out", default="demos")
+    site.add_argument("--limit", type=int, help="only the top N prospects")
+    site.add_argument("--include-all", action="store_true",
+                      help="include people who already have a website")
+    site.add_argument("--live", action="store_true",
+                      help="a real client site: no draft banner, indexable")
+    site.set_defaults(func=cmd_site)
+
+    email = sub.add_parser("email", help="draft one outreach email per prospect")
+    email.add_argument("--from-csv", default="out/leads.csv")
+    email.add_argument("--sender", help="JSON with your name, price, contact details")
+    email.add_argument("--out", default="outreach")
+    email.add_argument("--demos", help="the directory 'site' wrote, to link each draft")
+    email.add_argument("--base-url", help="where the demos are hosted")
+    email.add_argument("--limit", type=int)
+    email.add_argument("--include-all", action="store_true")
+    email.set_defaults(func=cmd_email)
 
     conf = sub.add_parser("config", help="print the default config as JSON")
     conf.set_defaults(func=cmd_config)

@@ -53,6 +53,43 @@ _COUNTIES = [
 ]
 _COUNTY_RE = re.compile(
     r"\b(?:Co\.?|County)\s+(" + "|".join(_COUNTIES) + r")\b", re.I)
+# "Ennis, Co. Clare" -> town is whatever is capitalised just before the county.
+_TOWN_RE = re.compile(
+    r"((?:[A-Z][A-Za-z\u00c0-\u017f'\u2019-]+\s+){0,2}"
+    r"[A-Z][A-Za-z\u00c0-\u017f'\u2019-]+)"
+    r"\s*,\s*(?:Co\.?|County)\s+(?:" + "|".join(_COUNTIES) + r")\b")
+# Words that can sit just before a town name but are not part of it. The text
+# of a page is flattened before matching, so a credential from the line above
+# can end up adjacent to the address.
+_NOT_TOWN_WORDS = {
+    "accredited", "member", "registered", "therapist", "counsellor",
+    "psychotherapist", "supervisor", "ireland", "based", "practice",
+    "clinic", "centre", "center", "address", "location", "in", "at", "the",
+}
+
+# What they say they work with. Used for the site's "People come to me about"
+# list, and to give you something true to say in an email.
+SPECIALISMS = {
+    "Anxiety and panic": ["anxiety", "panic", "worry"],
+    "Depression and low mood": ["depression", "low mood", "depressive"],
+    "Bereavement and loss": ["bereavement", "grief", "loss", "grieving"],
+    "Trauma and its aftermath": ["trauma", "ptsd", "abuse", "emdr"],
+    "Relationship difficulties": ["relationship", "couples", "marital", "marriage"],
+    "Separation and divorce": ["separation", "divorce"],
+    "Work stress and burnout": ["burnout", "work stress", "workplace", "occupational"],
+    "Confidence and self-esteem": ["self-esteem", "self esteem", "confidence", "self-worth"],
+    "Anger": ["anger"],
+    "Addiction and recovery": ["addiction", "alcohol", "substance", "gambling", "recovery"],
+    "Eating and body image": ["eating disorder", "anorexia", "bulimia", "body image"],
+    "Children and adolescents": ["children", "adolescent", "teenage", "young people", "play therapy"],
+    "Stress": ["stress"],
+    "Sleep difficulties": ["insomnia", "sleep"],
+    "LGBTQ+ issues": ["lgbt", "gender identity", "sexuality"],
+    "Chronic illness and pain": ["chronic illness", "chronic pain", "cancer"],
+    "Fertility and pregnancy loss": ["fertility", "miscarriage", "pregnancy loss", "postnatal"],
+    "Loneliness and isolation": ["loneliness", "isolation"],
+}
+_ACCREDITATION_RE = re.compile(r"\b((?:M|Pre-?)?IACP(?:\s*(?:Accred(?:ited)?|Reg))?)\b", re.I)
 
 
 @dataclass
@@ -63,6 +100,10 @@ class Profile:
     location: str = ""
     email: str = ""
     phone: str = ""
+    town: str = ""
+    specialisms: list[str] = field(default_factory=list)
+    accreditation: str = ""
+    blurb: str = ""
     links: list[Link] = field(default_factory=list)
     raw_text_chars: int = 0
 
@@ -95,6 +136,24 @@ def _content_root(soup: BeautifulSoup):
         if found and len(found.get_text(strip=True)) > 120:
             return found
     return soup.body or soup
+
+
+def _location_text(root, fallback: str) -> str:
+    """The smallest element that names a county.
+
+    Matching the town against the whole page doesn't work: the text is
+    flattened to one string, so "Declan Moore" in the heading sits directly
+    beside "Tralee, Co. Kerry" and the surname gets read as part of the town.
+    """
+    best = None
+    if root is not None:
+        for element in root.find_all(["p", "li", "div", "span", "address",
+                                      "td", "h2", "h3", "h4"]):
+            text = element.get_text(" ", strip=True)
+            if 0 < len(text) <= 120 and _COUNTY_RE.search(text):
+                if best is None or len(text) < len(best):
+                    best = text
+    return best or fallback
 
 
 def _clean_phone(raw: str) -> str:
@@ -136,9 +195,40 @@ def extract_profile(html: str, url: str, cfg: Config) -> Profile:
     text = root.get_text(" ", strip=True) if root else ""
     profile.raw_text_chars = len(text)
 
-    county = _COUNTY_RE.search(text)
+    location = _location_text(root, text)
+    profile.location = location if location is not text else ""
+    county = _COUNTY_RE.search(location)
     if county:
         profile.county = county.group(1).title()
+    town = _TOWN_RE.search(location)
+    if town:
+        words = town.group(1).split()
+        # Drop leading credentials/acronyms, then keep at most two words.
+        while words and (words[0].isupper() or words[0].lower() in _NOT_TOWN_WORDS):
+            words.pop(0)
+        if words:
+            profile.town = " ".join(words[-2:])
+
+    lowered = text.lower()
+    profile.specialisms = [label for label, words in SPECIALISMS.items()
+                           if any(w in lowered for w in words)]
+    accred = _ACCREDITATION_RE.search(text)
+    if accred:
+        token = accred.group(1).lower()
+        if token.startswith("pre") or "pre-accred" in lowered or "pre accred" in lowered:
+            profile.accreditation = "Pre-accredited member of IACP"
+        elif token.startswith("m"):
+            profile.accreditation = "MIACP"
+        else:
+            profile.accreditation = "IACP"
+
+    # The longest paragraph is almost always the one they wrote about
+    # themselves - it is what gives you a true line to open an email with.
+    paragraphs = [p.get_text(" ", strip=True)
+                  for p in (root.find_all(["p", "li"]) if root else [])]
+    paragraphs = [p for p in paragraphs if len(p) > 80 and "@" not in p]
+    if paragraphs:
+        profile.blurb = max(paragraphs, key=len)[:600]
 
     seen: set[str] = set()
     for anchor in (root.find_all("a", href=True) if root else []):

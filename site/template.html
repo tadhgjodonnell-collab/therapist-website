@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en-IE">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{name}}{{#credentials}}, {{credentials}}{{/credentials}} — {{role}} in {{town}}</title>
+<meta name="description" content="{{meta_description}}">
+<meta name="robots" content="{{robots}}">
+<link rel="canonical" href="{{canonical}}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="{{name}} — {{role}} in {{town}}">
+<meta property="og:description" content="{{meta_description}}">
+<meta property="og:locale" content="en_IE">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ProfessionalService",
+  "name": "{{name}}",
+  "description": "{{meta_description}}",
+  "address": { "@type": "PostalAddress", "addressLocality": "{{town}}", "addressRegion": "County {{county}}", "addressCountry": "IE"{{#eircode}}, "postalCode": "{{eircode}}"{{/eircode}} },
+  "areaServed": "County {{county}}"{{#phone}},
+  "telephone": "{{phone}}"{{/phone}}{{#email}},
+  "email": "{{email}}"{{/email}}
+}
+</script>
+</head>
+<body>
+
+{{#draft}}
+<div class="draft">
+  <div class="wrap">
+    <p><strong>Draft preview for {{name}}.</strong> Built from your public IACP
+    listing. Fees, opening hours, the photograph and anything in square brackets
+    are placeholders — tell me what's wrong and I'll correct it. Nothing here is
+    published or searchable.</p>
+  </div>
+</div>
+{{/draft}}
+
+<header class="masthead">
+  <div class="wrap masthead__inner">
+    <div>
+      <h1 class="masthead__name">{{name}}</h1>
+      <p class="masthead__role">{{role}}{{#credentials}} &middot; {{credentials}}{{/credentials}}</p>
+    </div>
+    <p class="masthead__contact">
+      {{#phone_display}}<a href="tel:{{phone_tel}}">{{phone_display}}</a><br>{{/phone_display}}
+      {{#email}}<a href="mailto:{{email}}">{{email}}</a>{{/email}}
+    </p>
+  </div>
+</header>
+
+<nav class="sections" aria-label="Sections">
+  <div class="wrap">
+    <ul>
+      <li><a href="#how-i-work">How I work</a></li>
+      <li><a href="#help-with">What I can help with</a></li>
+      <li><a href="#practical">Practical details</a></li>
+      <li><a href="#contact">Getting in touch</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+  <div class="opening">
+    <div class="wrap opening__grid">
+      <div>
+        <p class="opening__lead">{{lead}}</p>
+        <div class="opening__body">
+          {{#intro_paragraphs}}<p>{{.}}</p>{{/intro_paragraphs}}
+        </div>
+      </div>
+      <figure class="portrait">
+        {{#photo}}
+        <img src="{{photo}}" alt="{{name}}" width="800" height="1000">
+        {{/photo}}
+        {{^photo}}
+        <div class="portrait--empty">A photograph of you goes here — people
+          decide whether to ring based on it more than anything else on the page.</div>
+        {{/photo}}
+        {{#photo_caption}}<figcaption>{{photo_caption}}</figcaption>{{/photo_caption}}
+      </figure>
+    </div>
+  </div>
+
+  <section id="how-i-work">
+    <div class="wrap">
+      <p class="section__label">How I work</p>
+      <h2 class="section__title">{{how_i_work_title}}</h2>
+      {{#how_i_work}}<p>{{.}}</p>{{/how_i_work}}
+    </div>
+  </section>
+
+  {{#has_helps_with}}
+  <section id="help-with">
+    <div class="wrap">
+      <p class="section__label">What I can help with</p>
+      <h2 class="section__title">People come to me about</h2>
+      <ul class="helps">
+        {{#helps_with}}<li>{{.}}</li>{{/helps_with}}
+      </ul>
+      <p style="margin-top:1.5rem;color:var(--ink-soft)">{{helps_with_note}}</p>
+    </div>
+  </section>
+  {{/has_helps_with}}
+
+  <section id="practical">
+    <div class="wrap">
+      <p class="section__label">Practical details</p>
+      <h2 class="section__title">What it costs and where to find me</h2>
+      <dl class="details">
+        <div class="details__row"><dt>Where</dt><dd>{{where}}</dd></div>
+        <div class="details__row"><dt>Fee</dt><dd>{{fee}}</dd></div>
+        <div class="details__row"><dt>Session length</dt><dd>{{session_length}}</dd></div>
+        <div class="details__row"><dt>Online sessions</dt><dd>{{online_sessions}}</dd></div>
+        <div class="details__row"><dt>Availability</dt><dd>{{availability}}</dd></div>
+        <div class="details__row"><dt>Cancellations</dt><dd>{{cancellation}}</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <section id="contact">
+    <div class="wrap">
+      <p class="section__label">Getting in touch</p>
+      <h2 class="section__title">The first step</h2>
+      <ul class="contact__lines">
+        {{#phone_display}}<li><span class="label">Phone</span><a href="tel:{{phone_tel}}">{{phone_display}}</a></li>{{/phone_display}}
+        {{#email}}<li><span class="label">Email</span><a href="mailto:{{email}}">{{email}}</a></li>{{/email}}
+      </ul>
+      {{#contact_paragraphs}}<p>{{.}}</p>{{/contact_paragraphs}}
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="crisis">
+        <h2>If you need support right now</h2>
+        <p>I'm not an emergency service, and I can't respond to messages
+          straight away. If you're in crisis or worried you might act on
+          thoughts of harming yourself, please contact one of these instead —
+          all are free and available today.</p>
+        <ul>
+          <li><span class="svc">Samaritans</span> — freephone 116 123, any hour</li>
+          <li><span class="svc">Text About It</span> — text HELLO to 50808</li>
+          <li><span class="svc">Pieta House</span> — freephone 1800 247 247</li>
+          <li><span class="svc">Emergency services</span> — 112 or 999</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="footer__grid">
+      <div>
+        <h2>Practice</h2>
+        <address>
+          {{name}}{{#credentials}}, {{credentials}}{{/credentials}}<br>
+          {{#address_lines}}{{.}}<br>{{/address_lines}}
+          {{#eircode}}{{eircode}}<br>{{/eircode}}
+          County {{county}}
+        </address>
+      </div>
+      <div>
+        <h2>Accreditation</h2>
+        <p>{{accreditation}}</p>
+      </div>
+      <div>
+        <h2>Confidentiality</h2>
+        <p>{{confidentiality}}</p>
+      </div>
+    </div>
+    <div class="colophon">
+      <p>&copy; {{year}} {{name}}. {{#privacy_note}}{{privacy_note}}{{/privacy_note}}</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
